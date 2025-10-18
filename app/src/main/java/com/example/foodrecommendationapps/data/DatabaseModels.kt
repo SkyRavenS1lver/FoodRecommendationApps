@@ -206,23 +206,9 @@ data class UserProfile(
 
 @Entity(
     tableName = "food_recommendation",
-    foreignKeys = [
-        ForeignKey(
-            entity = DataMakanan::class,
-            parentColumns = ["id"],
-            childColumns = ["food_id"],
-            onDelete = ForeignKey.CASCADE
-        ),
-        ForeignKey(
-            entity = UserProfile::class,
-            parentColumns = ["id"],
-            childColumns = ["user_id"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ],
     indices = [
         Index(value = ["id"]),
-//        Index(value = ["user_id"]),
+        Index(value = ["user_id"]),
         Index(value = ["food_id"])
     ]
 )

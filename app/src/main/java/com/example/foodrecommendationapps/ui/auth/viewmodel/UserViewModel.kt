@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 
 
 class UserViewModel(private val repository: DatabaseRepository) : ViewModel() {
-    fun register(registerResponse: RegisterResponse, user: UserProfile) {
+    suspend fun register(registerResponse: RegisterResponse, user: UserProfile) {
         if (registerResponse.success && registerResponse.data != null){
             viewModelScope.launch {
                 repository.addUser(user)

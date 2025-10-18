@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.foodrecommendationapps.data.dao.ConsumptionHistoryDao
 import com.example.foodrecommendationapps.data.dao.DataMakananDao
@@ -24,7 +25,8 @@ import kotlinx.coroutines.launch
         UserProfile::class,
         FoodRecommendation::class
     ],
-    version = 2
+    version = 4,
+    exportSchema = false
 )
 abstract class NutritionDatabase : RoomDatabase() {
     abstract fun dataMakananDao(): DataMakananDao
@@ -39,6 +41,49 @@ abstract class NutritionDatabase : RoomDatabase() {
 
         private const val DATABASE_NAME = "food_recommendation_apps_database"
 
+        // Migration from version 2 to 3: Add index on user_id for better performance
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add index on user_id column in food_recommendation table
+                database.execSQL("CREATE INDEX IF NOT EXISTS index_food_recommendation_user_id ON food_recommendation(user_id)")
+            }
+        }
+
+        // Migration from version 3 to 4: Remove foreign key constraints from food_recommendation
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // SQLite doesn't support dropping foreign keys directly
+                // We need to recreate the table without foreign keys
+
+                // Create new table without foreign keys
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS food_recommendation_new (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        user_id INTEGER NOT NULL,
+                        food_id INTEGER NOT NULL,
+                        recommendation_score REAL NOT NULL
+                    )
+                """)
+
+                // Copy data from old table
+                database.execSQL("""
+                    INSERT INTO food_recommendation_new (id, user_id, food_id, recommendation_score)
+                    SELECT id, user_id, food_id, recommendation_score FROM food_recommendation
+                """)
+
+                // Drop old table
+                database.execSQL("DROP TABLE food_recommendation")
+
+                // Rename new table to original name
+                database.execSQL("ALTER TABLE food_recommendation_new RENAME TO food_recommendation")
+
+                // Recreate indices
+                database.execSQL("CREATE INDEX IF NOT EXISTS index_food_recommendation_id ON food_recommendation(id)")
+                database.execSQL("CREATE INDEX IF NOT EXISTS index_food_recommendation_user_id ON food_recommendation(user_id)")
+                database.execSQL("CREATE INDEX IF NOT EXISTS index_food_recommendation_food_id ON food_recommendation(food_id)")
+            }
+        }
+
         fun getDatabase(
             context: Context,
             scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
@@ -50,6 +95,7 @@ abstract class NutritionDatabase : RoomDatabase() {
                     this.DATABASE_NAME
                 )
                     .addCallback(DatabaseCallback(context.applicationContext, scope))
+                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4)
                     .fallbackToDestructiveMigration() // For development only
                     .build()
                 this.INSTANCE = instance
@@ -64,6 +110,9 @@ abstract class NutritionDatabase : RoomDatabase() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
 
+                // Enable foreign key constraints
+                db.execSQL("PRAGMA foreign_keys=ON")
+
                 // Create triggers on database creation
 //                createTriggers(db)
 
@@ -72,6 +121,12 @@ abstract class NutritionDatabase : RoomDatabase() {
                         populateDatabase(context, database)
                     }
                 }
+            }
+
+            override fun onOpen(db: SupportSQLiteDatabase) {
+                super.onOpen(db)
+                // Ensure foreign keys are enabled every time database is opened
+                db.execSQL("PRAGMA foreign_keys=ON")
             }
 
         private fun createTriggers(db: SupportSQLiteDatabase) {

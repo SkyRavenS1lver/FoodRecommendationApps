@@ -224,6 +224,7 @@ class RegisterActivity : AppCompatActivity() {
                                 1,
                                 null
                             )
+                            // Wait for registration to complete before the observer navigates
                             userViewModel.register(response.body()!!, newUser)
                         }
                     } else {
@@ -231,7 +232,15 @@ class RegisterActivity : AppCompatActivity() {
                         Toast.makeText(this@RegisterActivity, message, Toast.LENGTH_SHORT).show()
                     }
                 } catch (e: Exception) {
-                    Toast.makeText(this@RegisterActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    val errorMessage = when {
+                        e.message?.contains("FOREIGN KEY constraint failed") == true ->
+                            "Terjadi kesalahan pada data rekomendasi. Silakan coba lagi."
+                        e.message?.contains("network") == true || e.message?.contains("timeout") == true ->
+                            "Koneksi terputus. Silakan periksa jaringan Anda."
+                        else -> "Error: ${e.message ?: "Terjadi kesalahan tidak dikenal"}"
+                    }
+                    Toast.makeText(this@RegisterActivity, errorMessage, Toast.LENGTH_LONG).show()
+                    e.printStackTrace()
                 } finally {
                     binding.progressBar.visibility = View.GONE
                     binding.btnRegister.isEnabled = true
