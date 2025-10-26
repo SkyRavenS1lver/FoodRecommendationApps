@@ -4,7 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
+import com.example.foodrecommendationapps.data.FoodRecommendation
 import com.example.foodrecommendationapps.data.RegisterResponse
 import com.example.foodrecommendationapps.data.UserProfile
 import com.example.foodrecommendationapps.repo.DatabaseRepository
@@ -12,7 +14,7 @@ import kotlinx.coroutines.launch
 
 
 class UserViewModel(private val repository: DatabaseRepository) : ViewModel() {
-    suspend fun register(registerResponse: RegisterResponse, user: UserProfile) {
+    fun register(registerResponse: RegisterResponse, user: UserProfile) {
         if (registerResponse.success && registerResponse.data != null){
             viewModelScope.launch {
                 repository.addUser(user)
@@ -27,10 +29,33 @@ class UserViewModel(private val repository: DatabaseRepository) : ViewModel() {
             }
         }
     }
-    fun updateToken(token:String?, userId:Int) {
+    fun loginUpdate(token:String?, userId:Int, recommendations: List<FoodRecommendation>, email:String) {
         if (token != null && token != ""){
             viewModelScope.launch {
-                repository.updateToken(token, userId)
+                val user = repository.getUser(userId)
+                if (user.isEmpty()){
+                    val newUser = UserProfile(
+                        id = userId,
+                        name = null,
+                        email = email,
+                        age = 0,
+                        gender = 0,
+                        height = 0.0,
+                        weight = 0.0,
+                        activity = 0,
+                        latest_token = token,
+                        is_logged_in = true,
+                        updated_at = "",
+                        sync_status = 0,
+                        last_sync = null
+                    )
+                    repository.addUser(newUser)
+                }
+                else{
+                    repository.updateToken(token, userId)
+                }
+                repository.deleteAllRecommendation(userId)
+                repository.addAllRecommendation(recommendations)
             }
         }
     }

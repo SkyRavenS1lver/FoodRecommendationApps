@@ -51,12 +51,18 @@ class DatabaseRepository(private val database: NutritionDatabase) {
     // ========================================================================
     fun getLoggedUser(): Flow<List<UserProfile>> =
         userProfileDao.getLoggeduser()
+    suspend fun getUser(userId: Int): List<UserProfile> =
+        userProfileDao.getUserProfile(userId)
+    suspend fun isUserUnsynced(userId: Int): List<UserProfile> =
+        userProfileDao.getUserProfileUnsynced(userId)
     suspend fun addUser(profile: UserProfile) =
         userProfileDao.insert(profile)
     suspend fun updateToken(token:String, userId:Int) =
         userProfileDao.updateToken(token, userId)
     suspend fun updateUser(profile: UserProfile) =
         userProfileDao.update(profile)
+    suspend fun updateLastSync(lastSync: String, userId:Int) =
+        userProfileDao.updateLastSync(lastSync, userId)
     fun getRecommendationForUser(userId: Int): Flow<List<FoodRecommendationWithName>> =
         foodRecommendationDao.getRecommendationForUser(userId)
     suspend fun addAllRecommendation(data: List<FoodRecommendation>) =

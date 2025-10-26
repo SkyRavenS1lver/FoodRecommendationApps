@@ -8,12 +8,7 @@ data class LoginRequest(
 data class LoginResponse(
     val success: Boolean,
     val message: String,
-    val data: DataLoginBody?
-)
-
-data class DataLoginBody(
-    val user_id:Int?,
-    val token: String?
+    val data: DataBodyResponse?
 )
 
 data class RegisterRequest(
@@ -30,30 +25,12 @@ data class RegisterRequest(
 data class RegisterResponse(
     val success: Boolean,
     val message: String,
-    val data: DataBodyRegisterResponse?,
+    val data: DataBodyResponse?,
 )
-data class DataBodyRegisterResponse(
+data class DataBodyResponse(
     val token: String?,
     val user_id: Int,
     val updated_at: String,
     val food_recommendation: List<FoodRecommendation>,
 )
 
-data class ForgotPasswordRequest(
-    val email: String
-)
-
-data class ForgotPasswordResponse(
-    val success: Boolean,
-    val message: String
-)
-
-data class ChangePasswordRequest(
-    val token: String,
-    val newPassword: String
-)
-
-data class ChangePasswordResponse(
-    val success: Boolean,
-    val message: String
-)

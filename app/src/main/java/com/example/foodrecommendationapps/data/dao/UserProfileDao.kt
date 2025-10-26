@@ -12,8 +12,10 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface UserProfileDao {
-    @Query("SELECT * FROM user_profile WHERE id = :userId")
-    fun getUserProfile(userId: Int): Flow<UserProfile?>
+    @Query("SELECT * FROM user_profile WHERE id = :userId Limit 1")
+    suspend fun getUserProfile(userId: Int): List<UserProfile>
+    @Query("SELECT * FROM user_profile WHERE id = :userId AND sync_status = 0 Limit 1")
+    suspend fun getUserProfileUnsynced(userId: Int): List<UserProfile>
     @Query("SELECT * FROM user_profile WHERE is_logged_in = 1")
     fun getLoggeduser(): Flow<List<UserProfile>>
     @Query("""
@@ -50,6 +52,8 @@ interface UserProfileDao {
 
     @Query("UPDATE user_profile SET latest_token = :token, is_logged_in = 1 WHERE  id = :userId")
     suspend fun updateToken(token:String, userId: Int)
+    @Query("UPDATE user_profile SET last_sync = :lastSync WHERE  id = :userId")
+    suspend fun updateLastSync(lastSync:String, userId: Int)
     @Delete
     suspend fun delete(profile: UserProfile)
     @Query("DELETE FROM user_profile WHERE id = :userId")

@@ -86,7 +86,12 @@ class LoginActivity : AppCompatActivity() {
                 if (response.isSuccessful && response.body()?.success == true) {
                     val loginResponse = response.body()
                     if (response.body()!!.data != null){
-                        userViewModel.updateToken(loginResponse!!.data!!.token, loginResponse.data.user_id!!)
+                        userViewModel.loginUpdate(
+                            loginResponse!!.data!!.token,
+                            loginResponse.data.user_id,
+                            loginResponse.data.food_recommendation,
+                            request.email
+                        )
                     }
                 } else {
                     val message = response.body()?.message ?: "Login gagal"

@@ -3,6 +3,7 @@ package com.example.foodrecommendationapps.ui.reporting
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
@@ -48,6 +49,7 @@ class ReportList : AppCompatActivity() {
                 if (!alreadySync){
                     alreadySync = true
                     syncApiService = RetrofitBuilder.build(it.firstOrNull()?.latest_token?: "").create(SyncApiService::class.java)
+                    syncProfileData()
                     syncData()
                 }
             }
@@ -64,16 +66,49 @@ class ReportList : AppCompatActivity() {
                           calendar.get(Calendar.MONTH),
                           calendar.get(Calendar.DAY_OF_MONTH))
     }
+    private fun syncProfileData(){
+        if (NetworkConnectivityChecker.isClientConnected(this)){
+            lifecycleScope.launch {
+                val data = repository.isUserUnsynced(userId)
+                if (!data.isEmpty()){
+                    val response = syncApiService.syncProfile(data[0])
+                    if (response.isSuccessful && response.body()?.success == true) {
+                        val userFromServer = response.body()!!.data
+                        if (userFromServer != null){
+                            val updatedUserProfile = UserProfile(
+                                id = userId,
+                                name = userFromServer.name,
+                                email = userFromServer.email,
+                                age = userFromServer.age,
+                                gender = userFromServer.gender,
+                                height = userFromServer.height,
+                                weight = userFromServer.weight,
+                                activity = userFromServer.activity,
+                                latest_token = data[0].latest_token,
+                                is_logged_in = data[0].is_logged_in,
+                                updated_at = userFromServer.updated_at,
+                                sync_status = 1,
+                                last_sync = data[0].last_sync
+                            )
+                            repository.updateUser(updatedUserProfile)
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     private fun syncData() {
         if (NetworkConnectivityChecker.isClientConnected(this)){
             lifecycleScope.launch {
                 val data = repository.getAllUnSyncedHistory(userId)
                 val last_sync = userViewModel.loggedUser.value?.get(0)?.last_sync
+                var needUpdate = false
                 val response = syncApiService.syncConsumption(ConsumptionSyncRequest(last_sync, data))
                 if (response.isSuccessful && response.body()?.success == true) {
                     if (response.body()!!.data != null){
                         if (!response.body()!!.data!!.server_changes.isEmpty()){
+                            needUpdate = true;
                             val data = response.body()!!.data!!.server_changes
                             val newDatas = ArrayList<ConsumptionHistory>()
                             data.forEach { it->
@@ -93,37 +128,26 @@ class ReportList : AppCompatActivity() {
                             repository.addConsumptionHistories(newDatas)
                         }
                         if (!response.body()!!.data!!.accepted.isEmpty()){
+                            needUpdate = true;
                             repository.updateSyncedConsumptionHistory(response.body()!!.data!!.accepted)
                         }
                         if (!response.body()!!.data!!.conflicts.isEmpty()){
+                            needUpdate = true;
                             response.body()!!.data!!.conflicts.forEach {repository.updateConsumptionHistory(it)}
                         }
                         if (!response.body()!!.data!!.food_recommendation.isEmpty()){
+                            needUpdate = true;
+                            Toast.makeText(this@ReportList, "Rekomendasi Makanan Terupdate", Toast.LENGTH_SHORT).show()
                             repository.deleteAllRecommendation(userId)
                             repository.addAllRecommendation(response.body()!!.data!!.food_recommendation)
                         }
-                        if (!response.body()!!.data!!.sync_timestamp.isEmpty()){
-                            val currentUser = userViewModel.loggedUser.value?.firstOrNull()
-                            if (currentUser != null){
-                                val updatedUser = UserProfile(
-                                    id = userId,
-                                    name = currentUser.name,
-                                    email = currentUser.email,
-                                    age = currentUser.age,
-                                    gender = currentUser.gender,
-                                    height = currentUser.height,
-                                    weight = currentUser.weight,
-                                    activity = currentUser.activity,
-                                    latest_token = currentUser.latest_token,
-                                    is_logged_in = true,
-                                    created_at = currentUser.created_at,
-                                    updated_at = currentUser.updated_at,
-                                    sync_status = currentUser.sync_status,
-                                    last_sync = response.body()!!.data!!.sync_timestamp
-                                )
-                                repository.updateUser(updatedUser)
+                        if (needUpdate){
+                            if (!response.body()!!.data!!.sync_timestamp.isEmpty()){
+                                val currentUser = userViewModel.loggedUser.value?.firstOrNull()
+                                if (currentUser != null){
+                                    repository.updateLastSync(response.body()!!.data!!.sync_timestamp, userId)
+                                }
                             }
-
                         }
                     }
                 }

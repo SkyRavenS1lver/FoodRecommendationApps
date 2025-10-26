@@ -193,8 +193,6 @@ data class UserProfile(
     val latest_token: String?,
     @ColumnInfo(name = "is_logged_in")
     val is_logged_in: Boolean,
-    @ColumnInfo(name = "created_at")
-    val created_at: String,
     // Sync metadata
     @ColumnInfo(name = "updated_at")
     val updated_at: String,

@@ -3,6 +3,8 @@ package com.example.foodrecommendationapps.api
 import com.example.foodrecommendationapps.data.ConsumptionSyncRequest
 import com.example.foodrecommendationapps.data.ConsumptionSyncResponse
 import com.example.foodrecommendationapps.data.FoodSyncResponse
+import com.example.foodrecommendationapps.data.ProfileSyncResponse
+import com.example.foodrecommendationapps.data.UserProfile
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -18,5 +20,7 @@ interface SyncApiService {
     suspend fun syncFood(): Response<FoodSyncResponse>
     @POST("sync/consumptions")
     suspend fun syncConsumption(@Body request: ConsumptionSyncRequest): Response<ConsumptionSyncResponse>
+    @POST("sync/profile")
+    suspend fun syncProfile(@Body request: UserProfile?): Response<ProfileSyncResponse>
 
 }

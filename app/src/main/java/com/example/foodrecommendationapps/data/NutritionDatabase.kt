@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
         UserProfile::class,
         FoodRecommendation::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class NutritionDatabase : RoomDatabase() {
@@ -46,6 +46,12 @@ abstract class NutritionDatabase : RoomDatabase() {
             override fun migrate(database: SupportSQLiteDatabase) {
                 // Add index on user_id column in food_recommendation table
                 database.execSQL("CREATE INDEX IF NOT EXISTS index_food_recommendation_user_id ON food_recommendation(user_id)")
+            }
+        }
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add index on user_id column in food_recommendation table
+                database.execSQL("ALTER TABLE users DROP COLUMN created_at")
             }
         }
 
@@ -95,7 +101,7 @@ abstract class NutritionDatabase : RoomDatabase() {
                     this.DATABASE_NAME
                 )
                     .addCallback(DatabaseCallback(context.applicationContext, scope))
-                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4)
+                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                     .fallbackToDestructiveMigration() // For development only
                     .build()
                 this.INSTANCE = instance
@@ -129,26 +135,26 @@ abstract class NutritionDatabase : RoomDatabase() {
                 db.execSQL("PRAGMA foreign_keys=ON")
             }
 
-        private fun createTriggers(db: SupportSQLiteDatabase) {
-                // Auto-update updated_at on consumption_history
-                db.execSQL("""
-                    CREATE TRIGGER IF NOT EXISTS update_consumption_timestamp
-                    AFTER UPDATE ON consumption_history
-                    BEGIN
-                        UPDATE consumption_history SET updated_at = datetime('now', 'localtime') WHERE id = NEW.id;
-                        UPDATE consumption_history SET sync_status = 0;
-                    END
-                """)
-                // Auto-update updated_at on user_profile
-                db.execSQL("""
-                    CREATE TRIGGER IF NOT EXISTS update_user_profile_timestamp
-                    AFTER UPDATE ON user_profile
-                    BEGIN
-                        UPDATE user_profile SET updated_at = datetime('now', 'localtime') WHERE id = NEW.id;
-                        UPDATE user_profile SET sync_status = 0;
-                    END
-                """)
-            }
+//        private fun createTriggers(db: SupportSQLiteDatabase) {
+//                // Auto-update updated_at on consumption_history
+//                db.execSQL("""
+//                    CREATE TRIGGER IF NOT EXISTS update_consumption_timestamp
+//                    AFTER UPDATE ON consumption_history
+//                    BEGIN
+//                        UPDATE consumption_history SET updated_at = datetime('now', 'localtime') WHERE id = NEW.id;
+//                        UPDATE consumption_history SET sync_status = 0;
+//                    END
+//                """)
+//                // Auto-update updated_at on user_profile
+//                db.execSQL("""
+//                    CREATE TRIGGER IF NOT EXISTS update_user_profile_timestamp
+//                    AFTER UPDATE ON user_profile
+//                    BEGIN
+//                        UPDATE user_profile SET updated_at = datetime('now', 'localtime') WHERE id = NEW.id;
+//                        UPDATE user_profile SET sync_status = 0;
+//                    END
+//                """)
+//            }
         }
         private suspend fun populateDatabase(context:Context, database: NutritionDatabase) {
             try {
