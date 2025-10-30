@@ -15,8 +15,9 @@
     <string name="login_failed">"Login failed"</string>
     <string name="select_date">Tanggal Makan</string>
     <string name="select_time">Waktu Makan</string>
-    <string name="recommended_foods">Top 10 rekomendasi makanan</string>
-    <string name="food_consumed">Makananan dikonsumsi:</string>
+    <string name="recommended_foods_title">10 rekomendasi teratasmu</string>
+    <string name="recommended_foods_subtitle">(Klik untuk menambah makanan/minuman ke daftar dikonsumsi)</string>
+    <string name="food_consumed">Makanan/Minuman dikonsumsi:</string>
     <string name="add_more">Tambah makanan</string>
     <string name="submit">Kirim</string>
     <string name="select_food">Pilih makanan</string>

@@ -18,8 +18,7 @@ import kotlinx.coroutines.launch
 class FoodViewModel(private val repository: DatabaseRepository, private val userId:Int) : ViewModel() {
     val recommendedFoods: LiveData<List<FoodRecommendationWithName>> =
         FoodRecommendationManager.getWeightedRecommendationsFlow(
-        repository.getRecommendationForUser(userId),
-        limit = 10
+        repository.getRecommendationForUser(userId)
     ).stateIn(viewModelScope, SharingStarted.Lazily, emptyList()).asLiveData()
     val allFoods: LiveData<List<DataMakananNameOnly>> = repository.getAllFoods().asLiveData()
 

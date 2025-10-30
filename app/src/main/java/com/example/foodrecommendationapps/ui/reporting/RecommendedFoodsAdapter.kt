@@ -16,7 +16,7 @@ class RecommendedFoodsAdapter (
 
         fun bind(food: FoodRecommendationWithName, onAddClick: (FoodRecommendationWithName) -> Unit) {
             binding.foodNameText.text = food.nama_bahan
-            binding.addButton.setOnClickListener {
+            binding.root.setOnClickListener {
                 onAddClick(food)
             }
         }

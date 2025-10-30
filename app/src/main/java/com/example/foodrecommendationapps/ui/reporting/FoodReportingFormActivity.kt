@@ -130,7 +130,7 @@ class FoodReportingFormActivity : AppCompatActivity() {
         val currentList = foodConsumedList.value ?: mutableListOf()
         currentList.add(FoodConsumed(foodId = food.id, foodName = food.nama_bahan.toString()))
         foodConsumedList.postValue(currentList)
-        Toast.makeText(this, "${food.nama_bahan} added", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "${food.nama_bahan} ditambahkan", Toast.LENGTH_SHORT).show()
     }
 
     private suspend fun setupFoodConsumedRecyclerView(repository: DatabaseRepository) {
