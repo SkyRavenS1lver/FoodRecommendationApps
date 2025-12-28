@@ -89,7 +89,6 @@ class LoginActivity : AppCompatActivity() {
                         userViewModel.loginUpdate(
                             loginResponse!!.data!!.token,
                             loginResponse.data.user_id,
-                            loginResponse.data.food_recommendation,
                             request.email
                         )
                     }

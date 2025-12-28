@@ -27,6 +27,5 @@ data class ConsumptionSyncResponseDataBody(
     val accepted: List<String>,
     val rejected: List<String>,
     val conflicts: List<ConsumptionHistory>,
-    val food_recommendation: List<FoodRecommendation>,
     val sync_timestamp: String
-    )
+)

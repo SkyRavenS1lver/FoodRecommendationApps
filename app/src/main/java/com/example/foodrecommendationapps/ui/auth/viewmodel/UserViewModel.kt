@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
-import com.example.foodrecommendationapps.data.FoodRecommendation
 import com.example.foodrecommendationapps.data.RegisterResponse
 import com.example.foodrecommendationapps.data.UserProfile
 import com.example.foodrecommendationapps.repo.DatabaseRepository
@@ -18,7 +17,6 @@ class UserViewModel(private val repository: DatabaseRepository) : ViewModel() {
         if (registerResponse.success && registerResponse.data != null){
             viewModelScope.launch {
                 repository.addUser(user)
-                repository.addAllRecommendation(registerResponse.data.food_recommendation)
             }
         }
     }
@@ -29,7 +27,7 @@ class UserViewModel(private val repository: DatabaseRepository) : ViewModel() {
             }
         }
     }
-    fun loginUpdate(token:String?, userId:Int, recommendations: List<FoodRecommendation>, email:String) {
+    fun loginUpdate(token:String?, userId:Int, email:String) {
         if (token != null && token != ""){
             viewModelScope.launch {
                 val user = repository.getUser(userId)
@@ -54,8 +52,6 @@ class UserViewModel(private val repository: DatabaseRepository) : ViewModel() {
                 else{
                     repository.updateToken(token, userId)
                 }
-                repository.deleteAllRecommendation(userId)
-                repository.addAllRecommendation(recommendations)
             }
         }
     }

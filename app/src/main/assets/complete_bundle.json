@@ -1,0 +1,50 @@
+{
+  "config": {
+    "model_info": {
+      "algorithm": "K-Means Clustering",
+      "n_clusters": 7,
+      "features": ["ENERGI", "PROTEIN", "LEMAK", "KH", "SERAT"],
+      "distance_metric": "Euclidean",
+      "normalization": "StandardScaler (Z-score)"
+    },
+    "scaler": {
+      "mean": [197.51343416370108, 9.490480427046263, 7.491903914590747, 27.842793594306052, 5.465213523131673],
+      "std": [164.3050267140632, 11.556300685527113, 13.832168150168645, 42.72138916509891, 31.902045219535434],
+      "feature_names": ["ENERGI", "PROTEIN", "LEMAK", "KH", "SERAT"]
+    },
+    "bmr_formulas": {
+      "male": "BMR = (10 * weight_kg) + (6.25 * height_cm) - (5 * age_years) + 5",
+      "female": "BMR = (10 * weight_kg) + (6.25 * height_cm) - (5 * age_years) - 161",
+      "source": "Mifflin-St Jeor Equation (1990)"
+    },
+    "activity_multipliers": {
+      "sedentary": 1.2,
+      "light": 1.375,
+      "moderate": 1.55,
+      "active": 1.725,
+      "very_active": 1.9
+    },
+    "macro_distribution": {
+      "protein_percent": 0.15,
+      "fat_percent": 0.25,
+      "carbohydrate_percent": 0.6,
+      "protein_kcal_per_gram": 4,
+      "fat_kcal_per_gram": 9,
+      "carbohydrate_kcal_per_gram": 4
+    },
+    "goal_adjustments": {
+      "lose": -500,
+      "maintain": 0,
+      "gain": 300
+    }
+  },
+  "cluster_centroids": [
+    {"cluster_id": 0, "centroid": {"ENERGI": 447.56, "PROTEIN": 17.66, "LEMAK": 32.85, "KH": 21.79, "SERAT": 1.55}, "characterization": "High Fat"},
+    {"cluster_id": 1, "centroid": {"ENERGI": 92.61, "PROTEIN": 5.81, "LEMAK": 2.5, "KH": 13.49, "SERAT": 3.65}, "characterization": "High Protein"},
+    {"cluster_id": 2, "centroid": {"ENERGI": 8.96, "PROTEIN": 2.37, "LEMAK": 1.81, "KH": 420.43, "SERAT": 106.0}, "characterization": "Very High Fiber"},
+    {"cluster_id": 3, "centroid": {"ENERGI": 257.74, "PROTEIN": 9.17, "LEMAK": 3.82, "KH": 49.54, "SERAT": 2.06}, "characterization": "High Carb"},
+    {"cluster_id": 4, "centroid": {"ENERGI": 146.77, "PROTEIN": 2.76, "LEMAK": 0.46, "KH": 33.98, "SERAT": 1.33}, "characterization": "Moderate Carb"},
+    {"cluster_id": 5, "centroid": {"ENERGI": 111.76, "PROTEIN": 22.49, "LEMAK": 1.65, "KH": 2.48, "SERAT": 0.17}, "characterization": "Very High Protein"},
+    {"cluster_id": 6, "centroid": {"ENERGI": 32.44, "PROTEIN": 1.43, "LEMAK": 0.31, "KH": 6.67, "SERAT": 2.02}, "characterization": "Low Calorie"}
+  ]
+}

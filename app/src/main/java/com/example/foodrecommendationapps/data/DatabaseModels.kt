@@ -33,6 +33,8 @@ data class DataMakanan(
     val lemak: Double = 0.0,
     @ColumnInfo(name = "karbohidrat")
     val karbohidrat: Double = 0.0,
+    @ColumnInfo(name = "serat")
+    val serat: Double = 0.0,
     @ColumnInfo(name = "bdd")
     val bdd: Double = 100.0,
     // Sync metadata
@@ -202,29 +204,27 @@ data class UserProfile(
     val last_sync: String?, // Pending default
 )
 
-@Entity(
-    tableName = "food_recommendation",
-    indices = [
-        Index(value = ["id"]),
-        Index(value = ["user_id"]),
-        Index(value = ["food_id"])
-    ]
-)
-data class FoodRecommendation(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
-    @ColumnInfo(name = "user_id")
-    val user_id: Int,
-    @ColumnInfo(name = "food_id")
-    val food_id: Int,
-    @ColumnInfo(name = "recommendation_score")
-    val recommendation_score: Double,
-)
-
 data class FoodRecommendationWithName(
     val id: Int,
     val nama_bahan: String?,
     val recommendation_score: Double
+)
+
+data class FoodWithNutrients(
+    @ColumnInfo(name = "id")
+    val id: Int,
+    @ColumnInfo(name = "nama_bahan")
+    val nama_bahan: String,
+    @ColumnInfo(name = "energi")
+    val energi: Double,
+    @ColumnInfo(name = "protein")
+    val protein: Double,
+    @ColumnInfo(name = "lemak")
+    val lemak: Double,
+    @ColumnInfo(name = "kh")
+    val kh: Double,
+    @ColumnInfo(name = "serat")
+    val serat: Double
 )
 data class FoodWithPortions(
     @Embedded val food: DataMakanan,

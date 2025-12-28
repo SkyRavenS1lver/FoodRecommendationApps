@@ -2,8 +2,6 @@ package com.example.foodrecommendationapps.repo
 
 import com.example.foodrecommendationapps.data.ConsumptionHistory
 import com.example.foodrecommendationapps.data.DataMakananNameOnly
-import com.example.foodrecommendationapps.data.FoodRecommendation
-import com.example.foodrecommendationapps.data.FoodRecommendationWithName
 import com.example.foodrecommendationapps.data.NutritionDatabase
 import com.example.foodrecommendationapps.data.ReportDataClass
 import com.example.foodrecommendationapps.data.UrtList
@@ -16,7 +14,6 @@ class DatabaseRepository(private val database: NutritionDatabase) {
     private val urtListDao =  database.urtListDao()
     private val consumptionHistoryDao =  database.consumptionHistoryDao()
     private val userProfileDao =  database.userProfileDao()
-    private val foodRecommendationDao = database.foodRecommendationDao()
     private val PER_PAGE = 10;
 
     // ========================================================================
@@ -24,6 +21,10 @@ class DatabaseRepository(private val database: NutritionDatabase) {
     // ========================================================================
     fun getAllFoods(): Flow<List<DataMakananNameOnly>> =
         dataMakananDao.getAllFoods()
+    suspend fun getFoodIdByName(foodName: String): Int? =
+        dataMakananDao.getFoodIdByName(foodName)
+    suspend fun getAllFoodsWithNutrients() =
+        dataMakananDao.getAllFoodsWithNutrients()
     // ========================================================================
     // Portion Functions
     // ========================================================================
@@ -45,6 +46,10 @@ class DatabaseRepository(private val database: NutritionDatabase) {
     suspend fun updateSyncedConsumptionHistory(ids:List<String>) =
         consumptionHistoryDao.updateSyncedConsumptionHistory(ids)
     suspend fun getAllUnSyncedHistory(userId: Int) = consumptionHistoryDao.getConsumptionHistoryUnSynced(userId)
+    suspend fun getRecentlyConsumedFoodIds(userId: Int, days: Int = 7) =
+        consumptionHistoryDao.getRecentlyConsumedFoodIds(userId, days)
+    suspend fun getRecentlyConsumedFoodNames(userId: Int, days: Int = 7) =
+        consumptionHistoryDao.getRecentlyConsumedFoodNames(userId, days)
 
     // ========================================================================
     // User Profile
@@ -63,10 +68,4 @@ class DatabaseRepository(private val database: NutritionDatabase) {
         userProfileDao.update(profile)
     suspend fun updateLastSync(lastSync: String, userId:Int) =
         userProfileDao.updateLastSync(lastSync, userId)
-    fun getRecommendationForUser(userId: Int): Flow<List<FoodRecommendationWithName>> =
-        foodRecommendationDao.getRecommendationForUser(userId)
-    suspend fun addAllRecommendation(data: List<FoodRecommendation>) =
-        foodRecommendationDao.insertAll(data)
-    suspend fun deleteAllRecommendation(userId: Int) =
-        foodRecommendationDao.deleteByUserId(userId)
 }

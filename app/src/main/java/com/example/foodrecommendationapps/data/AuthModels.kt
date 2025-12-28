@@ -30,7 +30,6 @@ data class RegisterResponse(
 data class DataBodyResponse(
     val token: String?,
     val user_id: Int,
-    val updated_at: String,
-    val food_recommendation: List<FoodRecommendation>,
+    val updated_at: String
 )
 

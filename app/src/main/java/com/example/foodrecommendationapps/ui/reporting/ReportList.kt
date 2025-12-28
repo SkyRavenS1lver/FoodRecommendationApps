@@ -135,12 +135,6 @@ class ReportList : AppCompatActivity() {
                             needUpdate = true;
                             response.body()!!.data!!.conflicts.forEach {repository.updateConsumptionHistory(it)}
                         }
-                        if (!response.body()!!.data!!.food_recommendation.isEmpty()){
-                            needUpdate = true;
-                            Toast.makeText(this@ReportList, "Rekomendasi Makanan Terupdate", Toast.LENGTH_SHORT).show()
-                            repository.deleteAllRecommendation(userId)
-                            repository.addAllRecommendation(response.body()!!.data!!.food_recommendation)
-                        }
                         if (needUpdate){
                             if (!response.body()!!.data!!.sync_timestamp.isEmpty()){
                                 val currentUser = userViewModel.loggedUser.value?.firstOrNull()

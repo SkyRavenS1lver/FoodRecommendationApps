@@ -33,4 +33,22 @@ interface ConsumptionHistoryDao {
     suspend fun updateSyncedConsumptionHistory(ids:List<String>)
     @Delete
     suspend fun delete(record: ConsumptionHistory)
+
+    @Query("""
+        SELECT DISTINCT food_id
+        FROM consumption_history
+        WHERE user_id = :userId
+        AND date_report >= date('now', '-' || :days || ' days')
+        ORDER BY date_report DESC
+    """)
+    suspend fun getRecentlyConsumedFoodIds(userId: Int, days: Int = 7): List<Int>
+
+    @Query("""
+        SELECT DISTINCT dm.nama_bahan
+        FROM consumption_history ch
+        JOIN data_makanan dm ON ch.food_id = dm.id
+        WHERE ch.user_id = :userId
+        AND ch.date_report >= date('now', '-' || :days || ' days')
+    """)
+    suspend fun getRecentlyConsumedFoodNames(userId: Int, days: Int = 7): List<String>
 }

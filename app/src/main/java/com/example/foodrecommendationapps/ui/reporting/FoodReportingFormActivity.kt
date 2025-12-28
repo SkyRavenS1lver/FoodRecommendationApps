@@ -45,7 +45,7 @@ class FoodReportingFormActivity : AppCompatActivity() {
         binding = ActivityFoodReportingFormBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val app = (application as InitDatabase).also {
-            foodViewModel = FoodViewModel(it.repository, PrefsManager.getUserId(this))
+            foodViewModel = FoodViewModel(application, it.repository, PrefsManager.getUserId(this))
             userViewModel = UserViewModel(it.repository)
         }
         repository = app.repository

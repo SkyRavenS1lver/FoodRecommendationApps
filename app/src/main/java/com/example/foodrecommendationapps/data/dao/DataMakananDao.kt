@@ -9,6 +9,7 @@ import androidx.room.Transaction
 import androidx.room.Update
 import com.example.foodrecommendationapps.data.DataMakanan
 import com.example.foodrecommendationapps.data.DataMakananNameOnly
+import com.example.foodrecommendationapps.data.FoodWithNutrients
 import com.example.foodrecommendationapps.data.FoodWithPortions
 import kotlinx.coroutines.flow.Flow
 
@@ -32,6 +33,15 @@ interface DataMakananDao {
 
     @Query("SELECT * FROM data_makanan WHERE id = :foodId")
     fun getFoodByIdFlow(foodId: Int): Flow<DataMakanan?>
+
+    @Query("SELECT id FROM data_makanan WHERE nama_bahan = :foodName COLLATE NOCASE LIMIT 1")
+    suspend fun getFoodIdByName(foodName: String): Int?
+
+    @Query("""
+        SELECT id, nama_bahan, energi, protein, lemak, karbohidrat as kh, serat
+        FROM data_makanan
+    """)
+    suspend fun getAllFoodsWithNutrients(): List<FoodWithNutrients>
     @Query("SELECT * FROM data_makanan LIMIT 1")
     suspend fun getOneFood(): List<DataMakanan>
 

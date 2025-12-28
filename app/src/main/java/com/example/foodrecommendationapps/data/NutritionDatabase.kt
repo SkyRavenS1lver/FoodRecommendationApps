@@ -9,7 +9,6 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.foodrecommendationapps.data.dao.ConsumptionHistoryDao
 import com.example.foodrecommendationapps.data.dao.DataMakananDao
 import com.example.foodrecommendationapps.data.dao.DataMakananUrtDao
-import com.example.foodrecommendationapps.data.dao.FoodRecommendationDao
 import com.example.foodrecommendationapps.data.dao.UrtListDao
 import com.example.foodrecommendationapps.data.dao.UserProfileDao
 import kotlinx.coroutines.CoroutineScope
@@ -22,10 +21,9 @@ import kotlinx.coroutines.launch
         UrtList::class,
         DataMakananUrt::class,
         ConsumptionHistory::class,
-        UserProfile::class,
-        FoodRecommendation::class
+        UserProfile::class
     ],
-    version = 5,
+    version = 7,
     exportSchema = false
 )
 abstract class NutritionDatabase : RoomDatabase() {
@@ -34,7 +32,6 @@ abstract class NutritionDatabase : RoomDatabase() {
     abstract fun dataMakananUrtDao(): DataMakananUrtDao
     abstract fun consumptionHistoryDao(): ConsumptionHistoryDao
     abstract fun userProfileDao(): UserProfileDao
-    abstract fun foodRecommendationDao(): FoodRecommendationDao
     companion object {
         @Volatile
         private var INSTANCE: NutritionDatabase? = null
@@ -50,8 +47,19 @@ abstract class NutritionDatabase : RoomDatabase() {
         }
         private val MIGRATION_4_5 = object : Migration(4, 5) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                // Add index on user_id column in food_recommendation table
                 database.execSQL("ALTER TABLE users DROP COLUMN created_at")
+            }
+        }
+
+        private val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("DROP TABLE IF EXISTS food_recommendation")
+            }
+        }
+
+        private val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE data_makanan ADD COLUMN serat REAL NOT NULL DEFAULT 0.0")
             }
         }
 
@@ -101,8 +109,8 @@ abstract class NutritionDatabase : RoomDatabase() {
                     this.DATABASE_NAME
                 )
                     .addCallback(DatabaseCallback(context.applicationContext, scope))
-                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
-                    .fallbackToDestructiveMigration() // For development only
+                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
+                    .fallbackToDestructiveMigration()
                     .build()
                 this.INSTANCE = instance
                 instance
